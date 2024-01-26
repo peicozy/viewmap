@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>住んだ場所</title>
+<!---
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.0/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.3.0/dist/leaflet.js"></script>
+--->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    var map;
+    function init() {
+      //地図を表示するdiv要素のidを設定
+      map = L.map('mapcontainer' ,{zoomControl: false});
+      //地図の中心とズームレベルを指定
+      map.setView([35.40, 136], 5);
+
+      //国土地理院地図
+//      L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {
+//          attribution: "<a href='https://maps.gsi.go.jp/development/ichiran.html' target='_blank'>地理院タイル</a>"
+
+      // OSM地図
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="http://osm.org/copyright">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+
+      }).addTo(map);
+
+      set_marker();
+
+    }
+  </script>
+</head>
+<body onload="init()">
+  <div id="mapcontainer" style="width:600px;height:600px"></div>
+</body>
+<script>
+
+// 1地点につき、ズームイン、アウトをする
+// ズームレベルは、5から18とする
+var z_pos = 0;
+var p_pos = 0;
+var LIST = [
+    [36.14946533156096, 139.3660471949161],// 熊谷
+    [35.51519302867218, 139.68255866207537],// 鶴見
+    [35.66210128666562, 139.3570396006497],// 八王子
+    [35.64681542112374, 139.3612135807042],// 長沼
+    [35.57665511097863, 139.54919879394672],// たまプラ
+    [35.60802447976919, 139.32764659798622],// 相原
+    [12.937573435434214, 80.23228342524972],// チェンナイ　シーブロス
+    [12.945980198259319, 80.2430946844342],// チェンナイ　ビラ
+    [12.902981482278985, 80.25277260244546],// チェンナイ　プール付き
+    //[35.60802447976919, 139.32764659798622],// 相原
+    [34.70270514453324, 135.1967284575375],// 神戸
+    [33.84143518557493, 132.77574894228422],// 松山
+    [33.20796748485662, 132.55628726269387],// 宇和島
+    [33.60256642854567, 130.73148853140427]// 嘉麻
+];
+function get_next_view()
+{
+    var z = [5,6,7,8,9,10,11,12,13,14,15,16,17,18,17,16,15,14,13,12,11,10,9,8,7,6,5];
+    // ズームレベルが小数点でも動作するかテスト　-> 使えないようだ
+    //var z = [5.1,5.2,5.3,5.4,5.5,5.6,6,7,8,9,10,11,12,13,14,15,16,17,18,17,16,15,14,13,12,11,10,9,8,7,6,5];
+
+    var list = LIST;
+
+    var p = list[p_pos];
+    var ret = [p[0], p[1], z[z_pos]];
+
+    z_pos++;
+    // ズームが一周したら　p_posを一つ進める
+    if(z_pos >= z.length){
+        z_pos = 0;
+        p_pos++
+    }
+    if(p_pos >= list.length){
+        p_pos = 0;
+    }
+
+    return ret;
+}
+function set_marker(){
+    var list = LIST;
+    for(var i=0 ; i<list.length ; i++){
+        var p = list[i];
+        L.marker([p[0],p[1]],{title:""}).addTo(map);
+    }
+}
+
+const intervalId = setInterval(function() {
+    console.log('経過しました！');
+
+    var p = get_next_view();
+    map.setView([p[0], p[1]],p[2]);
+
+}, 500);
+
+</script>
+</html>
